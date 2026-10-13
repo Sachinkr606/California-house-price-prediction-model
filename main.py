@@ -1,18 +1,54 @@
+import logging
 import os
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
 import joblib
 import pandas as pd
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 
-# Load unified model pipeline (prioritize compressed model for speed)
-MODEL_PATH = (
-    Path("./model/model_compressed.pkl")
-    if Path("./model/model_compressed.pkl").exists()
-    else Path("./model/model.pkl")
-)
-model = joblib.load(MODEL_PATH)
+# Base directory of the project
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load unified model pipeline (prioritize compressed model for speed and lower slug size)
+COMPRESSED_MODEL_PATH = BASE_DIR / "model" / "model_compressed.pkl"
+RAW_MODEL_PATH = BASE_DIR / "model" / "model.pkl"
+
+if COMPRESSED_MODEL_PATH.exists():
+    MODEL_PATH = COMPRESSED_MODEL_PATH
+elif RAW_MODEL_PATH.exists():
+    MODEL_PATH = RAW_MODEL_PATH
+else:
+    MODEL_PATH = None
+
+model = None
+model_load_error = None
+
+if MODEL_PATH:
+    try:
+        model = joblib.load(MODEL_PATH)
+        logger.info(f"Model pipeline successfully loaded from: {MODEL_PATH}")
+    except Exception as e:
+        model_load_error = str(e)
+        logger.error(f"Failed to load model from {MODEL_PATH}: {e}", exc_info=True)
+else:
+    model_load_error = (
+        f"Model file not found. Expected {COMPRESSED_MODEL_PATH} or {RAW_MODEL_PATH}."
+    )
+    logger.error(model_load_error)
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy" if model is not None else "degraded",
+        "model_loaded": model is not None,
+        "model_path": str(MODEL_PATH) if MODEL_PATH else None,
+        "error": model_load_error,
+    }), (200 if model is not None else 503)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -36,6 +72,11 @@ def home():
         data = request.get_json(silent=True) or request.form
 
         try:
+            if model is None:
+                raise RuntimeError(
+                    f"Prediction model is not available: {model_load_error or 'Model not loaded'}"
+                )
+
             longitude = float(data.get("longitude", -122.23))
             latitude = float(data.get("latitude", 37.88))
             housing_median_age = float(data.get("housing_median_age", 15))
@@ -84,6 +125,7 @@ def home():
                 })
 
         except Exception as e:
+            logger.error(f"Prediction handling error: {e}", exc_info=True)
             if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return jsonify({"success": False, "error": str(e)}), 400
 
@@ -97,4 +139,5 @@ def home():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
