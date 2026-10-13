@@ -406,16 +406,17 @@
         .big-price {
             display: flex;
             align-items: baseline;
-            gap: 5px;
-            font-size: 40px;
+            gap: 4px;
+            font-size: 32px;
             font-weight: 800;
             color: #ffffff;
-            letter-spacing: -1px;
+            letter-spacing: -0.6px;
             line-height: 1.1;
+            white-space: nowrap;
         }
 
         .big-price .dollar-sign {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
             color: #e2e8f0;
         }
@@ -700,7 +701,7 @@
                     </svg>
                 </div>
                 <h2>California House Price<br><span class="brand-blue">Predictor</span></h2>
-                <p>Enter the house details below to get an estimated price<br>(in 100,000 USD units)</p>
+                <p>Enter the house details below to get an estimated price</p>
             </div>
 
             <form id="predictionForm" method="POST" class="predict-form">
@@ -888,14 +889,14 @@
                     <div class="price-number-wrapper">
                         <div class="big-price">
                             <span class="dollar-sign">$</span>
-                            <span id="priceDisplayUnits">{{ prediction_units }}</span>
+                            <span id="priceDisplay">{% if prediction %}{{ "{:,.2f}".format(prediction) }}{% else %}245,000.00{% endif %}</span>
                         </div>
-                        <span class="price-sub">Estimated Price<br>(in 100,000 USD units)</span>
+                        <span class="price-sub">Estimated House Price</span>
                         <span class="price-raw-badge" id="priceRawBadge">
-                            {% if prediction %}
-                            ${{ "{:,.2f}".format(prediction) }} total
+                            {% if prediction_units %}
+                            ~{{ prediction_units }} (100k scale)
                             {% else %}
-                            $245,000.00 total
+                            ~2.45 (100k scale)
                             {% endif %}
                         </span>
                     </div>
@@ -1000,23 +1001,31 @@
     <script>
         const form = document.getElementById('predictionForm');
         const submitBtn = document.getElementById('submitBtn');
-        const priceUnitsEl = document.getElementById('priceDisplayUnits');
+        const priceDisplayEl = document.getElementById('priceDisplay');
         const priceRawEl = document.getElementById('priceRawBadge');
         const priceCard = document.getElementById('priceCard');
 
+        // Formats number to currency with commas (e.g. 384,497.08)
+        function formatPrice(val) {
+            return Number(val).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
         // Smooth Counter Animation
-        function animateCounter(element, start, end, duration = 750) {
+        function animateCounter(element, start, end, duration = 800) {
             let startTimestamp = null;
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 3);
-                const currentVal = (start + (end - start) * easeOut).toFixed(2);
-                element.textContent = currentVal;
+                const currentVal = start + (end - start) * easeOut;
+                element.textContent = formatPrice(currentVal);
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 } else {
-                    element.textContent = end.toFixed(2);
+                    element.textContent = formatPrice(end);
                 }
             };
             window.requestAnimationFrame(step);
@@ -1053,11 +1062,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    const prevUnits = parseFloat(priceUnitsEl.textContent) || 0;
-                    const newUnits = parseFloat(result.prediction_units);
+                    const rawVal = priceDisplayEl.textContent.replace(/[^0-9.-]+/g, '');
+                    const prevPrice = parseFloat(rawVal) || 0;
+                    const newPrice = parseFloat(result.prediction);
 
-                    animateCounter(priceUnitsEl, prevUnits, newUnits);
-                    priceRawEl.textContent = `${result.formatted} total`;
+                    animateCounter(priceDisplayEl, prevPrice, newPrice);
+                    if (priceRawEl) {
+                        priceRawEl.textContent = `~${result.prediction_units} (100k scale)`;
+                    }
 
                     // Pulse highlight effect
                     priceCard.classList.remove('updated-pulse');
