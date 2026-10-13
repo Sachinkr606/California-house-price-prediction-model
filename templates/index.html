@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California House Price Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0066fe;
+            --primary-hover: #0052cc;
+            --accent-cyan: #38bdf8;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(8, 15, 30, 0.68) 0%, rgba(15, 23, 42, 0.32) 45%, rgba(18, 12, 30, 0.65) 100%),
+                        url('/static/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 32px;
+            overflow-x: hidden;
+        }
+
+        /* 3-Column Layout Canvas */
+        .layout-container {
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 455px 330px;
+            gap: 36px;
+            align-items: center;
+            position: relative;
+        }
+
+        /* ------------------ Left Column ------------------ */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            padding-right: 10px;
+        }
+
+        /* Top Brand Logo */
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            font-weight: 400;
+            color: #94a3b8;
+            line-height: 1.2;
+        }
+
+        .hero-title {
+            font-size: 54px;
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -1.8px;
+            color: #ffffff;
+        }
+
+        .hero-title .highlight {
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .hero-desc {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            max-width: 380px;
+        }
+
+        /* Left Feature Badges */
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            margin-top: 6px;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 13px 18px;
+            border-radius: 16px;
+            max-width: 360px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+            transition: transform 0.25s ease, background 0.25s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.13);
+        }
+
+        .feature-icon-wrapper {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feature-icon-wrapper.blue {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.45);
+        }
+
+        .feature-icon-wrapper.purple {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.45);
+        }
+
+        .feature-icon-wrapper.green {
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+        }
+
+        .feature-info h4 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .feature-info p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* ------------------ Center Column (White Form Card) ------------------ */
+        .form-card {
+            background: #ffffff;
+            border-radius: 26px;
+            padding: 28px 30px 30px;
+            box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.25);
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .header-house-art {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-header h2 {
+            font-size: 23px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.25;
+            letter-spacing: -0.4px;
+        }
+
+        .form-header h2 .brand-blue {
+            color: #0066fe;
+        }
+
+        .form-header p {
+            font-size: 11.5px;
+            color: #64748b;
+            margin-top: 5px;
+            line-height: 1.4;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Form Inputs */
+        .predict-form {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .field-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f0f7ff;
+            border: 1px solid #dbeafe;
+            color: #0066fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-bottom: 1px;
+        }
+
+        .field-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-body label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+
+        .field-body input,
+        .field-body select {
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #0f172a;
+            background: #ffffff;
+            border: 1.2px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .field-body select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 13px;
+            padding-right: 30px;
+        }
+
+        .field-body input:focus,
+        .field-body select:focus {
+            border-color: #0066fe;
+            box-shadow: 0 0 0 3px rgba(0, 102, 254, 0.12);
+        }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .submit-btn {
+            margin-top: 6px;
+            height: 44px;
+            background: #0066fe;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(0, 102, 254, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #0052cc;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(0, 102, 254, 0.45);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* ------------------ Right Column (Glass Cards) ------------------ */
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        /* Price Card */
+        .price-card {
+            position: relative;
+        }
+
+        .price-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .price-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .card-menu-dots {
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+            padding: 3px 8px;
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 3.5px;
+            height: 3.5px;
+            border-radius: 50%;
+            background: #ffffff;
+            opacity: 0.8;
+        }
+
+        .price-content-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .price-number-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .big-price {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            font-size: 40px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .big-price .dollar-sign {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .price-sub {
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        .price-raw-badge {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 6px;
+            padding: 2px 7px;
+            width: fit-content;
+        }
+
+        /* Glowing Chart Bars on Price Card */
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 42px;
+            padding-bottom: 2px;
+        }
+
+        .bar {
+            width: 6px;
+            background: linear-gradient(180deg, #38bdf8 0%, #0066fe 100%);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            transition: height 0.3s ease;
+        }
+
+        .bar:nth-child(1) { height: 35%; }
+        .bar:nth-child(2) { height: 55%; }
+        .bar:nth-child(3) { height: 75%; }
+        .bar:nth-child(4) { height: 100%; }
+
+        /* Location Card */
+        .location-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+        }
+
+        .loc-details {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .loc-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .loc-title {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .california-map {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 4px 8px rgba(0, 102, 254, 0.45));
+        }
+
+        /* Key Factors Card */
+        .factors-card {
+            padding: 18px 20px;
+        }
+
+        .factors-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .factors-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .factors-list li {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 12.5px;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .check-icon {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d2ff, #0066fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 102, 254, 0.4);
+        }
+
+        /* Subtle Pulse on Updated Prediction */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        .updated-pulse {
+            animation: pulseGlow 1.4s ease-out;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1200px) {
+            .layout-container {
+                grid-template-columns: 1fr 430px;
+                gap: 28px;
+            }
+            .right-col {
+                grid-column: span 2;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 16px;
+            }
+            .layout-container {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+            .left-col {
+                text-align: center;
+                align-items: center;
+                padding-right: 0;
+            }
+            .features-list {
+                width: 100%;
+                max-width: 440px;
+            }
+            .feature-card {
+                max-width: 100%;
+            }
+            .form-card {
+                max-width: 440px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .right-col {
+                grid-column: span 1;
+                max-width: 440px;
+                margin: 0 auto;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-container">
+
+        <!-- Left Column: Logo, Typography & 3 Features -->
+        <section class="left-col">
+            <!-- Brand Logo -->
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 10.5L12 3L21 10.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10.5Z" fill="#2563eb"/>
+                        <path d="M9 21V12H15V21" fill="#1e40af"/>
+                        <rect x="7" y="6" width="3" height="4" rx="1" fill="#60a5fa"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">California House</span>
+                    <span class="brand-subtitle">Price Predictor</span>
+                </div>
+            </div>
+
+            <!-- Display Headline -->
+            <h1 class="hero-title">
+                Predict<br>
+                California<br>
+                <span class="highlight">House Prices</span>
+            </h1>
+
+            <p class="hero-desc">
+                Use machine learning to estimate the median house value in California based on key features like location, population, income and more.
+            </p>
+
+            <!-- 3 Glassmorphism Features -->
+            <div class="features-list">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper blue">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/>
+                        </svg>
+                    </div>
+                    <div class="feature-info">
+                        <h4>ML Powered</h4>
+                        <p>Trained on the California Housing dataset</p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper purple">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 9.2H8V19H5V9.2ZM10.6 5H13.4V19H10.6V5ZM16.2 13H19V19H16.2V13Z"/>
+                        </svg>
+                    </div>
+                    <div class="feature-info">
+                        <h4>Fast Predictions</h4>
+                        <p>Get instant house price estimates</p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper green">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L4 5V11.09C4 16.14 7.41 20.85 12 22C16.59 20.85 20 16.14 20 11.09V5L12 2ZM10 15.5L6.5 12L7.91 10.59L10 12.67L16.09 6.58L17.5 8L10 15.5Z"/>
+                        </svg>
+                    </div>
+                    <div class="feature-info">
+                        <h4>Easy to Use</h4>
+                        <p>Simple and clean interface</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Column: White Hero Prediction Form Card -->
+        <section class="form-card">
+            <div class="form-header">
+                <!-- Illustrated House Art -->
+                <div class="header-house-art">
+                    <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
+                        <!-- Tree on left -->
+                        <path d="M11 41V47M11 27C7 27 5.5 31.5 5.5 35C5.5 39 8 41 11 41C14 41 16.5 39 16.5 35C16.5 31.5 15 27 11 27Z" stroke="#15803d" stroke-width="2.5" fill="#22c55e" stroke-linecap="round"/>
+                        <!-- Chimney -->
+                        <rect x="35" y="16" width="4.5" height="9" fill="#f97316" rx="1"/>
+                        <!-- Roof -->
+                        <path d="M18 25L32 12L46 25H18Z" fill="#ea580c"/>
+                        <!-- Main House Body -->
+                        <rect x="22" y="25" width="20" height="21" fill="#fef9c3" stroke="#eab308" stroke-width="1.5" rx="1.5"/>
+                        <!-- Door -->
+                        <rect x="29" y="34" width="6" height="12" fill="#0284c7" rx="1"/>
+                        <!-- Windows -->
+                        <rect x="24" y="27" width="4.5" height="4.5" fill="#38bdf8" rx="0.5"/>
+                        <rect x="35" y="27" width="4.5" height="4.5" fill="#38bdf8" rx="0.5"/>
+                    </svg>
+                </div>
+                <h2>California House Price<br><span class="brand-blue">Predictor</span></h2>
+                <p>Enter the house details below to get an estimated price<br>(in 100,000 USD units)</p>
+            </div>
+
+            <form id="predictionForm" method="POST" class="predict-form">
+
+                <!-- 1. Longitude -->
+                <div class="input-group">
+                    <div class="field-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="field-body">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" step="any" id="longitude" name="longitude" required placeholder="e.g. -122.23" value="{{ form_data.longitude }}">
+                    </div>
+                </div>
+
+                <!-- 2. Latitude -->
+                <div class="input-group">
+                    <div class="field-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="field-body">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" step="any" id="latitude" name="latitude" required placeholder="e.g. 37.88" value="{{ form_data.latitude }}">
+                    </div>
+                </div>
+
+                <!-- 3. Housing Median Age -->
+                <div class="input-group">
+                    <div class="field-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                    <div class="field-body">
+                        <label for="housing_median_age">Housing Median Age</label>
+                        <input type="number" step="any" id="housing_median_age" name="housing_median_age" required placeholder="e.g. 15" value="{{ form_data.housing_median_age }}">
+                    </div>
+                </div>
+
+                <!-- 4. Total Rooms & Total Bedrooms -->
+                <div class="two-cols">
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                <line x1="9" y1="6" x2="9.01" y2="6"></line>
+                                <line x1="15" y1="6" x2="15.01" y2="6"></line>
+                                <line x1="9" y1="10" x2="9.01" y2="10"></line>
+                                <line x1="15" y1="10" x2="15.01" y2="10"></line>
+                                <line x1="9" y1="14" x2="9.01" y2="14"></line>
+                                <line x1="15" y1="14" x2="15.01" y2="14"></line>
+                                <line x1="9" y1="18" x2="15" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="total_rooms">Total Rooms</label>
+                            <input type="number" step="any" id="total_rooms" name="total_rooms" required placeholder="e.g. 880" value="{{ form_data.total_rooms }}">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"></path>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="total_bedrooms">Total Bedrooms</label>
+                            <input type="number" step="any" id="total_bedrooms" name="total_bedrooms" required placeholder="e.g. 129" value="{{ form_data.total_bedrooms }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Population & Households -->
+                <div class="two-cols">
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="population">Population</label>
+                            <input type="number" step="any" id="population" name="population" required placeholder="e.g. 322" value="{{ form_data.population }}">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="households">Households</label>
+                            <input type="number" step="any" id="households" name="households" required placeholder="e.g. 126" value="{{ form_data.households }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Median Income & Ocean Proximity -->
+                <div class="two-cols">
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="6" x2="12" y2="18"></line>
+                                <path d="M15 9.5a3 3 0 0 0-3-2.5h-1a2.5 2.5 0 0 0 0 5h2a2.5 2.5 0 0 1 0 5h-2a3 3 0 0 1-3-2.5"></path>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="median_income">Median Income</label>
+                            <input type="number" step="any" id="median_income" name="median_income" required placeholder="e.g. 8.3252" value="{{ form_data.median_income }}">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="field-icon">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+                                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+                                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+                            </svg>
+                        </div>
+                        <div class="field-body">
+                            <label for="ocean_proximity">Ocean Proximity</label>
+                            <select id="ocean_proximity" name="ocean_proximity" required>
+                                <option value="<1H OCEAN" {% if form_data.ocean_proximity == '<1H OCEAN' %}selected{% endif %}>&lt;1H OCEAN</option>
+                                <option value="INLAND" {% if form_data.ocean_proximity == 'INLAND' %}selected{% endif %}>INLAND</option>
+                                <option value="NEAR OCEAN" {% if form_data.ocean_proximity == 'NEAR OCEAN' %}selected{% endif %}>NEAR OCEAN</option>
+                                <option value="NEAR BAY" {% if form_data.ocean_proximity == 'NEAR BAY' %}selected{% endif %}>NEAR BAY</option>
+                                <option value="ISLAND" {% if form_data.ocean_proximity == 'ISLAND' %}selected{% endif %}>ISLAND</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="submit-btn">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                        <line x1="8" y1="6" x2="16" y2="6"></line>
+                        <line x1="16" y1="14" x2="16" y2="18"></line>
+                        <path d="M16 10h.01"></path>
+                        <path d="M12 10h.01"></path>
+                        <path d="M8 10h.01"></path>
+                        <path d="M12 14h.01"></path>
+                        <path d="M8 14h.01"></path>
+                        <path d="M12 18h.01"></path>
+                        <path d="M8 18h.01"></path>
+                    </svg>
+                    <span>Predict House Price &rsaquo;</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Right Column: Glassmorphic Widgets -->
+        <aside class="right-col">
+
+            <!-- 1. House Price Card -->
+            <div class="glass-card price-card" id="priceCard">
+                <div class="price-card-top">
+                    <div class="price-label">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        <span>House Price</span>
+                    </div>
+                    <div class="card-menu-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+
+                <div class="price-content-row">
+                    <div class="price-number-wrapper">
+                        <div class="big-price">
+                            <span class="dollar-sign">$</span>
+                            <span id="priceDisplayUnits">{{ prediction_units }}</span>
+                        </div>
+                        <span class="price-sub">Estimated Price<br>(in 100,000 USD units)</span>
+                        <span class="price-raw-badge" id="priceRawBadge">
+                            {% if prediction %}
+                            ${{ "{:,.2f}".format(prediction) }} total
+                            {% else %}
+                            $245,000.00 total
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Glowing cyan vertical bars -->
+                    <div class="chart-bars">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Location Card -->
+            <div class="glass-card location-card">
+                <div class="loc-details">
+                    <div class="loc-header">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>Location</span>
+                    </div>
+                    <h3 class="loc-title">California, USA</h3>
+                </div>
+
+                <!-- California State Silhouette Map SVG -->
+                <div class="california-map">
+                    <svg width="44" height="44" viewBox="0 0 100 100" fill="none">
+                        <path d="M22 10 L75 20 L68 50 L86 82 L70 90 L52 78 L38 58 L26 32 Z" fill="#2563eb" stroke="#38bdf8" stroke-width="2.8" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 3. Key Factors Card -->
+            <div class="glass-card factors-card">
+                <div class="factors-header">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Key Factors</span>
+                </div>
+
+                <ul class="factors-list">
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>Location (Longitude &amp; Latitude)</span>
+                    </li>
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>House Median Age</span>
+                    </li>
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>Total Rooms &amp; Bedrooms</span>
+                    </li>
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>Population &amp; Households</span>
+                    </li>
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>Median Income</span>
+                    </li>
+                    <li>
+                        <div class="check-icon">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <span>Ocean Proximity</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Interactive Counter & AJAX Script -->
+    <script>
+        const form = document.getElementById('predictionForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const priceUnitsEl = document.getElementById('priceDisplayUnits');
+        const priceRawEl = document.getElementById('priceRawBadge');
+        const priceCard = document.getElementById('priceCard');
+
+        // Smooth Counter Animation
+        function animateCounter(element, start, end, duration = 750) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentVal = (start + (end - start) * easeOut).toFixed(2);
+                element.textContent = currentVal;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    element.textContent = end.toFixed(2);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Loading state on button
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.85';
+            submitBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spinner" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.3"></circle>
+                    <path d="M12 2a10 10 0 0 1 10 10"></path>
+                </svg>
+                <span>Calculating Price...</span>
+            `;
+
+            const formData = new FormData(form);
+            const dataObj = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(dataObj)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const prevUnits = parseFloat(priceUnitsEl.textContent) || 0;
+                    const newUnits = parseFloat(result.prediction_units);
+
+                    animateCounter(priceUnitsEl, prevUnits, newUnits);
+                    priceRawEl.textContent = `${result.formatted} total`;
+
+                    // Pulse highlight effect
+                    priceCard.classList.remove('updated-pulse');
+                    void priceCard.offsetWidth; // force reflow
+                    priceCard.classList.add('updated-pulse');
+
+                    if (window.innerWidth < 900) {
+                        priceCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } else {
+                    alert('Prediction error: ' + (result.error || 'Please check input values'));
+                }
+            } catch (err) {
+                form.submit();
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.innerHTML = originalBtnHtml;
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
